@@ -22,4 +22,4 @@ Current periodicity algorithms (that I've seen - prove me wrong!) are not genera
 Also, current research seems to indicate that the effect of harmonicity on dissonance perception is difficult to decouple from culturalization effects, potentially introducing cultural bias into current periodicity models (Harrison & Pearce, 2019). As research in this area continues, I'll continue to consider implementing periodicity models. However, they are currently not planned.
 
 ## Developers & Researchers
-I would love to have collaborators on this project. If you are a developer who would like to contribute to any part of the library, a researcher who has created a dissonance model that should be implemented in the library, or a user with feature requests, send me an email at lina@spectraldiscord.com.
+If you are a developer who would like to contribute to any part of the library, a researcher who has created a dissonance model that should be included, or a user with feature requests, send me an email at lina@spectraldiscord.com!
