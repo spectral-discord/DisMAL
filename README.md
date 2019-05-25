@@ -1,9 +1,7 @@
 # DisMAL
 C++ library for modeling musical dissonance perception, developing new timbres and tuning systems, and creating tools for music production and analysis. Built with [JUCE](https://github.com/WeAreROLI/JUCE).
 
-With its modular api, you can quickly interchange dissonance models, timbres, and preprocessors. This makes it easy to compare differences in the dissonance of timbres and scales as well as the underlying psychoacoustic models themselves.
-
-[Documentation](https://spectraldiscord.com/dismal/annotated.html)
+[Documentation](https://spectraldiscord.com/dismal)
 
 ## Features Coming Soon
 * More Dissonance Models!
