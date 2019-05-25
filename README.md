@@ -3,16 +3,16 @@ C++ library for modeling musical dissonance perception, developing new timbres a
 
 With its modular api, you can quickly interchange dissonance models, timbres, and preprocessors. This makes it easy to compare differences in the dissonance of timbres and scales as well as the underlying psychoacoustic models themselves.
 
-##Features Coming Soon
-*More Dissonance Models!
-*Preprocessors - Equal Loudness Contours, Masking Effects, etc.
-*Minima/Maxima Optimization
-*Scale Tempering Methods for Robust Tunings
-*Scale -> Timbre Optimization
-*And More...
+## Features Coming Soon
+* More Dissonance Models!
+* Preprocessors - Equal Loudness Contours, Masking Effects, etc.
+* Minima/Maxima Optimization
+* Scale Tempering Methods for Robust Tunings
+* Scale -> Timbre Optimization
+* And More...
 
-##Current Limitations
-###Harmonicity
+## Current Limitations
+### Harmonicity
 Harmonicity/periodicity models are not currently implemented for two reasons:
 
 Current periodicity algorithms (that I've seen - prove me wrong!) are not generalizable to inharmonic timbres. Including such models would affect the modularity of the library and infringe on the library's goal of making inharmonic timbres accessible to musical composition and analysis.
