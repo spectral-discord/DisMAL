@@ -131,9 +131,9 @@ float DissonanceCalc::calculateDissonance() const
     
     if (summingPartialDissonances())
     {
-        for (int i = 0; i < distributions.size(); ++i)
+        for (auto* dist : distributions)
         {
-            distributions[i]->clearPartialDissonances();
+            dist->clearPartialDissonances();
         }
     }
     
@@ -142,9 +142,9 @@ float DissonanceCalc::calculateDissonance() const
     tempDistributions.clear();
     tempDistributions.addCopiesOf (distributions);
     
-    for (int i = 0; i < preprocessors.size(); i++)
+    for (auto pre : preprocessors)
     {
-        preprocessors[i]->process (tempDistributions);
+        pre->process (tempDistributions);
     }
     
     dissonance = model->calculateDissonance (tempDistributions, sumPartialDissonances);
@@ -356,24 +356,24 @@ int DissonanceCalc::getYVariableDistributionIndex() const noexcept
 
 bool DissonanceCalc::isReadyToProcess()
 {
-    if (! distributions.isEmpty()
+    if (distributions.size() > 1
         && ! frequencyRange.isEmpty()
         && model != nullptr
         && numSteps > 1)
     {
-        for (int d = 0; d < distributions.size(); ++d)
+        for (auto* distribution : distributions)
         {
-            if (distributions[d]->getFundamentalFreq() <= 0
-                && ! frequencyRange.contains (distributions[d]->getFundamentalFreq()
+            if (distribution->getFundamentalFreq() <= 0
+                && ! frequencyRange.contains (distribution->getFundamentalFreq()
                                               * frequencyRange.getStart()))
             {
                 return false;
             }
             
-            for (int p = 0; p < distributions[d]->numPartials(); ++p)
+            for (int p = 0; p < distribution->numPartials(); ++p)
             {
-                if (distributions[d]->getFreqRatio (p) <= 0
-                    || distributions[d]->getAmpRatio (p) <= 0)
+                if (distribution->getFreqRatio (p) <= 0
+                    || distribution->getAmpRatio (p) <= 0)
                 {
                     return false;
                 }
@@ -401,9 +401,9 @@ void DissonanceCalc::calculateDissonanceMap()
             tempDistributions.clear();
             tempDistributions.addCopiesOf (distributions);
             
-            for (int i = 0; i < preprocessors.size(); i++)
+            for (auto* pre : preprocessors)
             {
-                preprocessors[i]->process (tempDistributions);
+                pre->process (tempDistributions);
             }
             
             map2D.set (i, model->calculateDissonance (tempDistributions, false));
@@ -427,9 +427,9 @@ void DissonanceCalc::calculateDissonanceMap()
                 tempDistributions.clear();
                 tempDistributions.addCopiesOf (distributions);
                 
-                for (int i = 0; i < preprocessors.size(); i++)
+                for (auto* pre : preprocessors)
                 {
-                    preprocessors[i]->process (tempDistributions);
+                    pre->process (tempDistributions);
                 }
                 
                 map3D[xStep].set (yStep, model->calculateDissonance (tempDistributions, false));

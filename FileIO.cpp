@@ -21,17 +21,30 @@ void FileIO::setPath (const String& path)
     {
         File temp (path);
         
-        if ((temp.existsAsFile() || temp.getParentDirectory().isDirectory())
-            && temp.hasFileExtension (StringRef ("dismal")))
+        if (temp.getParentDirectory().isDirectory()
+            || temp.hasFileExtension (StringRef ("dismal")))
             file = path;
     }
 }
 
 void FileIO::setPath (const File& newFile)
 {
-    if ((newFile.existsAsFile() || newFile.getParentDirectory().isDirectory())
-        && newFile.hasFileExtension (StringRef ("dismal")))
+    if (newFile.getParentDirectory().isDirectory()
+        || newFile.hasFileExtension (StringRef ("dismal")))
         file = newFile;
+}
+
+String FileIO::getPath()
+{
+    if (file.isAbsolutePath (file.getFullPathName()))
+        return file.getFullPathName();
+    
+    return "";
+}
+
+const File& FileIO::getFileReference()
+{
+    return file;
 }
 
 const String FileIO::dataTypeOfFile()
@@ -164,7 +177,7 @@ void FileIO::saveToFile (const TuningSystem& tuning,
 void FileIO::saveTreeToFile (const ValueTree &treeToSave,
                              const bool overwrite)
 {
-    if (file.existsAsFile() && overwrite == false)
+    if (file.existsAsFile() && ! overwrite)
     {
         jassertfalse;    // Overwrite set to false, but the file path points to an existing file.
         return;
@@ -173,28 +186,15 @@ void FileIO::saveTreeToFile (const ValueTree &treeToSave,
     if (treeToSave.isValid()
         && (treeToSave.hasType (IDs::OvertoneDistribution) || treeToSave.hasType (IDs::Tuning)))
     {
-        memory.reset();
-        MemoryOutputStream os (memory, false);
-        tree.writeToStream (os);
+        file.deleteFile();
+        file.create();
         
-        if (overwrite == true)
-        {
-            file.replaceWithData (&memory, memory.getSize());
-        }
-        else
-        {
-            if (file.create())
-            {
-                if (file.appendData (&memory, memory.getSize()))
-                    return;
-                else
-                    jassertfalse;        // Failed to write data
-            }
-            else
-            {
-                jassertfalse;            // Failed to create file
-            }
-        }
+        FileOutputStream os = FileOutputStream (file);
+        
+        if (os.openedOk())
+            treeToSave.writeToStream (os);
+        
+        os.flush();
     }
 }
 
@@ -255,10 +255,10 @@ TuningSystem FileIO::loadTuningFromFile()
 
 ValueTree& FileIO::loadTreeFromFile()
 {
-    tree = ValueTree();
+    FileInputStream is = FileInputStream (file.getFullPathName());
     
-    file.loadFileAsData (memory);
-    tree.readFromData (&memory, memory.getSize());
+    if (is.openedOk())
+        tree = ValueTree::readFromStream (is);
     
     return tree;
 }

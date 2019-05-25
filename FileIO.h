@@ -20,6 +20,25 @@
 #include "TuningSystem.h"
 #include "../IDs.h"
 
+namespace IDs
+{
+#define DECLARE_ID(name) const juce::Identifier name (#name);
+    
+    // Tree
+    DECLARE_ID (Partial);
+    // Properties
+    DECLARE_ID (Freq);
+    DECLARE_ID (Amp);
+    DECLARE_ID (Mute);
+    
+    // Tree
+    DECLARE_ID (OvertoneDistribution);
+    // Properties
+    DECLARE_ID (Name);
+    DECLARE_ID (FundamentalFreq);
+    DECLARE_ID (FundamentalAmp);
+}
+
 /** A class for reading from and writing to '.dismal' files.
  
     This class uses a juce::ValueTree, juce::File, and juce::MemoryBlock to serialize and deserialize OvertoneDistribution and TuningSystem objects into raw binary data. The files produced using this class should have an file extension of '.dismal', and can contain both overtone distributions and tuning systems. This is to enable the transfer of overtone distributions and tunings between users of DisMAL or apps derived from DisMAL.
@@ -31,10 +50,10 @@ public:
     FileIO(){}
     
     /** Constructs a FileIO object and sets its filepath using a String. */
-    FileIO (String pathName) {setPath(pathName);}
+    FileIO (String pathName) {setPath (pathName);}
     
     /** Constructs a FileIO object and sets its filepath using a File object. */
-    FileIO (File filePath) {setPath(filePath);}
+    FileIO (File filePath) {setPath (filePath);}
     
     /** Destructor. */
     ~FileIO(){}
@@ -44,6 +63,12 @@ public:
     
     /** Sets the path of a file to read or write from a File object. */
     void setPath (const File& newFile);
+    
+    /** Returns the current filepath. */
+    String getPath();
+    
+    /** Returns a copy of the Juce::File object being used. */
+    const File& getFileReference();
 
     /** Returns a String object that identifies the data in a file as that of either an OvertoneDistribution or a TuningSystem. */
     const String dataTypeOfFile();
