@@ -3,6 +3,8 @@ C++ library for modeling musical dissonance perception, developing new timbres a
 
 With its modular api, you can quickly interchange dissonance models, timbres, and preprocessors. This makes it easy to compare differences in the dissonance of timbres and scales as well as the underlying psychoacoustic models themselves.
 
+[Documentation](https://spectraldiscord.com/dismal/annotated.html)
+
 ## Features Coming Soon
 * More Dissonance Models!
 * Preprocessors - Equal Loudness Contours, Masking Effects, etc.
