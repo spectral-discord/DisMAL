@@ -28,8 +28,8 @@ public:
     virtual ~DissonanceModel();
     
     //==============================================================================
-    /** Returns the name of the dissonance model. This should be set in the constructors of derived classes. */
-    String getName();
+    /** Returns the name of the dissonance model. */
+    virtual String getName() = 0;
     
     //==============================================================================
     /** Calculates the dissonance of a set of overtone distributions with corresponding frequency and amplitude values. */
@@ -37,11 +37,10 @@ public:
                                        bool sumPartialDissonances) = 0;
     
     /** Enables dynamic allocation of child objects via std::unique_ptr. */
-    virtual std::unique_ptr<DissonanceModel> clone() = 0;
+    virtual std::unique_ptr<DissonanceModel> cloneModel() const = 0;
     
 protected:
     //==============================================================================
-    String name;
 
 };
 
@@ -102,12 +101,15 @@ public:
     /** Destructor. */
     ~SetharesModel();
     
+    /** Returns the name of the dissonance model. */
+    String getName() override;
+    
     /** Calculates the roughness between two partials. */
     float calculateRoughness (float firstFreq, float firstAmp,
                               float secondFreq, float secondAmp) override;
     
     /** For dynamic allocation via std::unique_ptr in DissonanceCalc. */
-    std::unique_ptr<DissonanceModel> clone() override;
+    std::unique_ptr<DissonanceModel> cloneModel() const override;
     
 protected:
     /** This is the point of maximum dissonance. The value is derived from a model of the Plom Levelt dissonance curves for all frequencies. Denoted by \f$$x$\f$. */
@@ -149,12 +151,15 @@ public:
     /** Detructor. */
     ~VassilakisModel();
     
+    /** Returns the name of the dissonance model. */
+    String getName() override;
+    
     /** Calculates the roughness between two partials. */
     float calculateRoughness (float firstFreq, float firstAmp,
                               float secondFreq, float secondAmp) override;
     
     /** For dynamic allocation via std::unique_ptr in DissonanceCalc. */
-    std::unique_ptr<DissonanceModel> clone() override;
+    std::unique_ptr<DissonanceModel> cloneModel() const override;
     
 protected:
     /** This is the point of maximum dissonance. The value is derived from a model of the Plom Levelt dissonance curves for all frequencies. Denoted by \f$$x$\f$. */

@@ -23,7 +23,7 @@ DissonanceCalc::DissonanceCalc()   : model (nullptr)
     dimensionality = Dimensionality::twoDimensional;
 }
 
-DissonanceCalc::DissonanceCalc (const DissonanceCalc& otherCalc)   : model (otherCalc.model->clone())
+DissonanceCalc::DissonanceCalc (const DissonanceCalc& otherCalc)   : model (otherCalc.model->cloneModel())
 {
     //preprocessors.addCopiesOf (otherCalc.preprocessors);
     distributions.addCopiesOf (otherCalc.distributions);
@@ -47,7 +47,7 @@ DissonanceCalc::~DissonanceCalc()
 
 void DissonanceCalc::setModel (DissonanceModel* newModel)
 {
-    model = newModel->clone();
+    model = newModel->cloneModel();
 }
 
 String DissonanceCalc::getModelName() const
@@ -456,6 +456,18 @@ float DissonanceCalc::getDissonanceAtStep (int step) const
 float DissonanceCalc::getDissonanceAtStep (int xStep, int yStep) const
 {
     return map3D[xStep][yStep];
+}
+
+float DissonanceCalc::getFrequencyAtStep (int step)
+{
+    return logSteps
+           ? pow (stepSize, step) * frequencyRange.getStart()
+           : stepSize * step + frequencyRange.getStart();
+}
+
+float DissonanceCalc::getFreqRatioAtStep (int step)
+{
+    return getFrequencyAtStep (step) / frequencyRange.getStart();
 }
 
 float* DissonanceCalc::get2dRawDissonanceData()

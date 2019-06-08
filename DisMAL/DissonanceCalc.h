@@ -294,6 +294,12 @@ public:
     /** Returns the dissonance value stored at the (x, y) step in a 3D dissonance map. */
     float getDissonanceAtStep (int xStep, int yStep) const;
     
+    /** Returns the frequency in Hz of a given step. */
+    float getFrequencyAtStep (int step);
+    
+    /** Returns the frequency ratio of a given step to the start frequency. */
+    float getFreqRatioAtStep (int step);
+    
     /** Returns a pointer to the start of the array of dissonances. */
     float* get2dRawDissonanceData();
     

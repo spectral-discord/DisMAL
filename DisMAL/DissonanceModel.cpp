@@ -19,19 +19,10 @@
 
 DissonanceModel::DissonanceModel()
 {
-    name = "Dissonance Model Base";
 }
 
 DissonanceModel::~DissonanceModel()
 {
-}
-
-//==============================================================================
-
-
-String DissonanceModel::getName()
-{
-    return name;
 }
 
 
@@ -41,7 +32,6 @@ String DissonanceModel::getName()
 
 SpectralInterferenceModel::SpectralInterferenceModel()
 {
-    name = "Spectral Interference Model Base";
 }
 
 SpectralInterferenceModel::~SpectralInterferenceModel()
@@ -176,11 +166,15 @@ SetharesModel::SetharesModel() :    maxDiss (0.24),
                                     plCurveRate1 (-3.51), plCurveRate2 (-5.75),
                                     plcFit1 (5), plcFit2 (-5)
 {
-    name = "Sethares";
 }
 
 SetharesModel::~SetharesModel()
 {
+}
+
+String SetharesModel::getName()
+{
+    return "Sethares";
 }
 
 //==============================================================================
@@ -196,14 +190,14 @@ float SetharesModel::calculateRoughness (float firstFreq, float firstAmp,
                                          + plcFit2 * std::exp (plCurveRate2 * curveInterp * freqDiff));
 }
 
-std::unique_ptr<DissonanceModel> SetharesModel::clone()
+std::unique_ptr<DissonanceModel> SetharesModel::cloneModel() const
 {
     return std::make_unique<SetharesModel> (*this);
 }
 
 
 //==============================================================================
-//                              SetharesModel
+//                              VassilakisModel
 //==============================================================================
 
 VassilakisModel::VassilakisModel() :   maxDiss (0.24),
@@ -211,11 +205,15 @@ VassilakisModel::VassilakisModel() :   maxDiss (0.24),
                                        plCurveRate1 (-3.51), plCurveRate2 (-5.75),
                                        plcFit1 (5), plcFit2 (-5)
 {
-    name = "Vassilakis";
 }
 
 VassilakisModel::~VassilakisModel()
 {
+}
+
+String VassilakisModel::getName()
+{
+    return "Vassilakis";
 }
 
 //==============================================================================
@@ -235,7 +233,7 @@ float VassilakisModel::calculateRoughness (float firstFreq, float firstAmp,
     return x * y * z;
 }
 
-std::unique_ptr<DissonanceModel> VassilakisModel::clone()
+std::unique_ptr<DissonanceModel> VassilakisModel::cloneModel() const
 {
     return std::make_unique<VassilakisModel> (*this);
 }
