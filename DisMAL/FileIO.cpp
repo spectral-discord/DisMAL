@@ -5,10 +5,8 @@
     Copyright (c) 2019 - Spectral Discord
     http://spectraldiscord.com
  
-    DisMAL is provided under the terms of the MIT License
-    https://opensource.org/licenses/MIT
- 
-    The code in this file makes calls to JUCE library code licensed under GPL v3.
+    This program is provided under the terms of GPL v3
+    https://opensource.org/licenses/GPL-3.0
  
   ==============================================================================
 */

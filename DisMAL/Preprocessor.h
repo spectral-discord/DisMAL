@@ -5,8 +5,8 @@
     Copyright (c) 2019 - Spectral Discord
     http://spectraldiscord.com
  
-    DisMAL is provided under the terms of the MIT License
-    https://opensource.org/licenses/MIT
+    This program is provided under the terms of GPL v3
+    https://opensource.org/licenses/GPL-3.0
  
   ==============================================================================
 */
@@ -35,4 +35,29 @@ public:
     
 private:
     String name;
+};
+
+//==============================================================================
+
+/** A simple preprocessor that filters out partials that lie outside of the human hearing range.
+ 
+    Basically, this acts as a bandpass filter. By default, this range is set to 20Hz - 20kHz, but this can be adjusted with class members.
+*/
+class HearingRangePreprocessor   : public Preprocessor
+{
+public:
+    HearingRangePreprocessor();
+    ~HearingRangePreprocessor();
+    
+    /** Sets the hearing range in which partials will not be muted. */
+    void setHearingRange (float lowerLimit, float upperLimit);
+    
+    /** Returns the hearing range in which partials will not be muted. */
+    Range<float> getHearingRange();
+    
+    /** Processes an array of overtone distributions. */
+    void process (OwnedArray<OvertoneDistribution>& distributions) override;
+    
+private:
+    Range<float> hearingRange;
 };

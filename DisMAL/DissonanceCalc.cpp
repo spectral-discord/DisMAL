@@ -5,8 +5,8 @@
     Copyright (c) 2019 - Spectral Discord
     http://spectraldiscord.com
  
-    DisMAL is provided under the terms of the MIT License
-    https://opensource.org/licenses/MIT
+    This program is provided under the terms of GPL v3
+    https://opensource.org/licenses/GPL-3.0
  
   ==============================================================================
 */
@@ -176,12 +176,12 @@ void DissonanceCalc::addChord()
 
 void DissonanceCalc::setFreqInChord (int chordIndex, int distributionIndex, float newFreq)
 {
-    chords[chordIndex].getReference(distributionIndex).freq = newFreq;
+    chords[chordIndex].getReference (distributionIndex).freq = newFreq;
 }
 
 void DissonanceCalc::setAmpInChord (int chordIndex, int distributionIndex, float newAmp)
 {
-    chords[chordIndex].getReference(distributionIndex).amp = newAmp;
+    chords[chordIndex].getReference (distributionIndex).amp = newAmp;
 
 }
 
@@ -448,6 +448,85 @@ void DissonanceCalc::calculateDissonanceMap()
     }
 }
 
+//==============================================================================
+
+// For use with NLopt
+double opt2D (const std::vector<double>& x, std::vector<double>& grad, void* data)
+{
+    DissonanceCalc temp = *static_cast<DissonanceCalc*> (data);
+    
+    temp.getDistributionReference (temp.get2dVariableDistributionIndex())->setFundamentalFreq (x[0]);
+    
+    return temp.calculateDissonance();
+}
+
+void DissonanceCalc::optimize2D (bool minimize, float lowerBound, float upperBound)
+{
+    nlopt::vfunc o = &opt2D;
+    nlopt::opt optim (nlopt::LN_COBYLA, 1);
+    
+    Array<float>& optimizedValues = minimize ? minima : maxima;
+    Array<float> dissValues;
+    
+    if (minimize)
+    {
+        minima.clear();
+        optim.set_min_objective (o, this);
+    }
+    else
+    {
+        maxima.clear();
+        optim.set_max_objective (o, this);
+    }
+    
+    optim.set_lower_bounds (lowerBound <= 0 ? frequencyRange.getStart() : lowerBound);
+    optim.set_upper_bounds (upperBound <= 0 ? frequencyRange.getEnd() : upperBound);
+    optim.set_xtol_abs (0.0001);
+
+    std::vector<double> x (1, 0);
+    double dissonanceValue = 0;
+    Range<float> tooClose;
+    int index;
+    
+    for (float thisX = frequencyRange.getStart();
+         thisX < frequencyRange.getEnd();
+         thisX *= 1.0008)
+    {
+        x[0] = thisX;
+        optim.optimize (x, dissonanceValue);
+        
+        if (! optimizedValues.contains (x[0]))
+        {
+            tooClose.setStart (x[0] / 1.001);
+            tooClose.setEnd (x[0] * 1.001);
+            
+            optimizedValues.addUsingDefaultSort (x[0]);
+            index = optimizedValues.indexOf (x[0]);
+            dissValues.insert (index, dissonanceValue);
+
+            for (int i = 0; i < optimizedValues.size(); ++i)
+            {
+                if (i != index
+                    && tooClose.contains (optimizedValues[i]))
+                {
+                    if (dissValues[index] < dissValues[i])
+                    {
+                        optimizedValues.remove (i);
+                        dissValues.remove (i);
+                    }
+                    else
+                    {
+                        optimizedValues.remove (index);
+                        dissValues.remove (index);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//==============================================================================
+
 float DissonanceCalc::getDissonanceAtStep (int step) const
 {
     return map2D[step];
@@ -458,16 +537,43 @@ float DissonanceCalc::getDissonanceAtStep (int xStep, int yStep) const
     return map3D[xStep][yStep];
 }
 
-float DissonanceCalc::getFrequencyAtStep (int step)
+float DissonanceCalc::getDissonanceAtFreq (float freq) const
+{
+    distributions[get2dVariableDistributionIndex()]->setFundamentalFreq (freq);
+    
+    return calculateDissonance();
+}
+
+float DissonanceCalc::getDissonanceAtFreq (float xFreq, float yFreq) const
+{
+    distributions[getXVariableDistributionIndex()]->setFundamentalFreq (xFreq);
+    distributions[getYVariableDistributionIndex()]->setFundamentalFreq (yFreq);
+
+    return calculateDissonance();
+}
+
+float DissonanceCalc::getFrequencyAtStep (float step)
 {
     return logSteps
            ? pow (stepSize, step) * frequencyRange.getStart()
            : stepSize * step + frequencyRange.getStart();
 }
 
-float DissonanceCalc::getFreqRatioAtStep (int step)
+float DissonanceCalc::getFreqRatioAtStep (float step)
 {
     return getFrequencyAtStep (step) / frequencyRange.getStart();
+}
+
+float DissonanceCalc::getStepOfFrequency (float freq)
+{
+    return logSteps
+           ? log (freq / frequencyRange.getStart()) / log (stepSize)
+           : (freq - frequencyRange.getStart()) / stepSize;
+}
+
+Array<float> DissonanceCalc::getOptimalFreqs (bool getMinima)
+{
+    return getMinima ? minima : maxima;
 }
 
 float* DissonanceCalc::get2dRawDissonanceData()
@@ -514,7 +620,5 @@ void DissonanceCalc::resizeMap()
         }
     }
 }
-
-//==============================================================================
 
 

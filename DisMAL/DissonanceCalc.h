@@ -5,8 +5,8 @@
     Copyright (c) 2019 - Spectral Discord
     http://spectraldiscord.com
  
-    DisMAL is provided under the terms of the MIT License
-    https://opensource.org/licenses/MIT
+    This program is provided under the terms of GPL v3
+    https://opensource.org/licenses/GPL-3.0
  
   ==============================================================================
 */
@@ -17,6 +17,7 @@
 #include "DissonanceModel.h"
 #include "OvertoneDistribution.h"
 #include "Preprocessor.h"
+#include <nlopt.hpp>
 
 /** A modular class for calculating dissonance.
  
@@ -288,17 +289,52 @@ public:
     /** Calculates dissonance values for a set of overtone distributions across a range of frequency intervals. */
     virtual void calculateDissonanceMap();
     
+    /** Attempts to locate all local dissonance minima or maxima for a 2D dissonance map.
+     
+        Using default values for all parameters will search for minima throughout the entire frequency range of map. By setting the parameters with different values, you can also search for maxima or search within a different frequency range.
+     
+        The resulting optimized minima and maxima can be accessed via the getOptimalFreqs() method.
+     
+        @param minima True if optimizing for minima, false if optimizing for maxima. Default value is true - ie, optimizing for minima.
+        @param lowerBound Sets the lower bound of the frequency bandwidth within which you are optimizing for dissonance minima. The default value of 0 (or any negative value) will set the bound with frequencyRange.getStart().
+        @param upperBound Sets the upper bound of the frequency bandwidth within which you are optimizing for dissonance minima. The default value of 0 (or any negative value) will set the bound with frequencyRange.getEnd().
+     
+        @see getOptimalFreqs()
+    */
+    void optimize2D (bool minimize = true, float lowerBound = -1, float upperBound = -1);
+    
+    //==============================================================================
     /** Returns the dissonance value stored at the nth step in a 2D dissonance map. */
     float getDissonanceAtStep (int step) const;
     
     /** Returns the dissonance value stored at the (x, y) step in a 3D dissonance map. */
     float getDissonanceAtStep (int xStep, int yStep) const;
     
+    /** Returns the dissonance value when the x-axis distribution has a frequency equal to the input. */
+    float getDissonanceAtFreq (float freq) const;
+    
+    /** Returns the dissonance value when the x-axis and y-axis distributions have respective frequencies of the input parameters xFreq and yFreq. */
+    float getDissonanceAtFreq (float xFreq, float yFreq) const;
+
     /** Returns the frequency in Hz of a given step. */
-    float getFrequencyAtStep (int step);
+    float getFrequencyAtStep (float step);
     
     /** Returns the frequency ratio of a given step to the start frequency. */
-    float getFreqRatioAtStep (int step);
+    float getFreqRatioAtStep (float step);
+    
+    /** Returns a step number for a given frequency.
+     
+        Being of type float, the return value can have decimal places indicating that the frequency lies between two steps.
+    */
+    float getStepOfFrequency (float freq);
+    
+    /** Returns an array of frequencies representing the dissonance minima or maxima of a 2D dissonance map.
+     
+        @param getMinima If set to true, the array will contain dissonance minima. If false, it will contain dissonance maxima.
+     
+        @see optimize2D()
+    */
+    Array<float> getOptimalFreqs (bool getMinima = true);
     
     /** Returns a pointer to the start of the array of dissonances. */
     float* get2dRawDissonanceData();
@@ -333,9 +369,9 @@ protected:
     //==============================================================================
     //                  Range-based calculations / Dissonance maps
     //==============================================================================
-    Array<float> map2D;
-    
+    Array<float> map2D, minima, maxima;
     Array<Array<float>> map3D;
+    
     Range<float> frequencyRange;
     float stepSize;
     int numSteps, varDist, xDist, yDist;

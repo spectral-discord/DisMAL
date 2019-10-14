@@ -5,38 +5,13 @@
     Copyright (c) 2019 - Spectral Discord
     http://spectraldiscord.com
  
-    DisMAL is provided under the terms of the MIT License
-    https://opensource.org/licenses/MIT
+    This program is provided under the terms of GPL v3
+    https://opensource.org/licenses/GPL-3.0
  
   ==============================================================================
 */
 
 #include "DissonanceModel.h"
-
-//==============================================================================
-//                              DissonanceModel
-//==============================================================================
-
-DissonanceModel::DissonanceModel()
-{
-}
-
-DissonanceModel::~DissonanceModel()
-{
-}
-
-
-//==============================================================================
-//                              SpectralInterferenceModel
-//==============================================================================
-
-SpectralInterferenceModel::SpectralInterferenceModel()
-{
-}
-
-SpectralInterferenceModel::~SpectralInterferenceModel()
-{
-}
 
 //==============================================================================
 

@@ -5,8 +5,8 @@
     Copyright (c) 2019 - Spectral Discord
     http://spectraldiscord.com
  
-    DisMAL is provided under the terms of the MIT License
-    https://opensource.org/licenses/MIT
+    This program is provided under the terms of GPL v3
+    https://opensource.org/licenses/GPL-3.0
 
   ==============================================================================
 */
@@ -22,10 +22,10 @@ class DissonanceModel
 public:
     //==============================================================================
     /** Creates a dissonance model object. */
-    DissonanceModel();
+    DissonanceModel(){}
     
     /** Desctructor. */
-    virtual ~DissonanceModel();
+    virtual ~DissonanceModel(){}
     
     //==============================================================================
     /** Returns the name of the dissonance model. */
@@ -54,10 +54,10 @@ class SpectralInterferenceModel :   public DissonanceModel
 {
 public:
     /** Creates a SpectralInterferenceModel object. */
-    SpectralInterferenceModel();
+    SpectralInterferenceModel(){}
     
     /** Destructor. */
-    virtual ~SpectralInterferenceModel();
+    virtual ~SpectralInterferenceModel(){}
     
     //==============================================================================
     /** Calculates the dissonance of a set of overtone distributions with corresponding frequency and amplitude values.
