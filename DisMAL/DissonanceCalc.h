@@ -50,7 +50,7 @@ public:
      
         @see setPreprocessorIndex
     */
-    void addPreprocessor (Preprocessor& newPreprocessor);
+    void addPreprocessor (Preprocessor* newPreprocessor);
     
     /** Moves a Preprocessor object within the preprocessors array from one index to another.
      
@@ -369,7 +369,7 @@ protected:
     //==============================================================================
     //                  Range-based calculations / Dissonance maps
     //==============================================================================
-    Array<float> map2D, minima, maxima;
+    Array<float> map2D;
     Array<Array<float>> map3D;
     
     Range<float> frequencyRange;
@@ -377,6 +377,12 @@ protected:
     int numSteps, varDist, xDist, yDist;
     Dimensionality dimensionality;
     bool logSteps;
+    
+    //==============================================================================
+    //                               Optimization
+    //==============================================================================
+    Array<float> minima, maxima;
+    float optimMinInterval, optimStepSize, optimTolerance;
     
     //==============================================================================
     /** Calculates the step size of a dissonance map, given a range of frequencies and number of steps.

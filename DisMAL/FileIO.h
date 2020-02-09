@@ -16,7 +16,7 @@
 #include "JuceHeader.h"
 #include "OvertoneDistribution.h"
 #include "TuningSystem.h"
-#include "../IDs.h"
+#include "IDs.h"
 
 /** A class for reading from and writing to '.dismal' files.
  

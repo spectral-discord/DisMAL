@@ -29,7 +29,7 @@ public:
     
     //==============================================================================
     /** Returns the name of the dissonance model. */
-    virtual String getName() = 0;
+    const String getName() { return name; }
     
     //==============================================================================
     /** Calculates the dissonance of a set of overtone distributions with corresponding frequency and amplitude values. */
@@ -41,7 +41,7 @@ public:
     
 protected:
     //==============================================================================
-
+    String name = "";
 };
 
 //==================================================================================
@@ -101,9 +101,6 @@ public:
     /** Destructor. */
     ~SetharesModel();
     
-    /** Returns the name of the dissonance model. */
-    String getName() override;
-    
     /** Calculates the roughness between two partials. */
     float calculateRoughness (float firstFreq, float firstAmp,
                               float secondFreq, float secondAmp) override;
@@ -150,9 +147,6 @@ public:
     
     /** Detructor. */
     ~VassilakisModel();
-    
-    /** Returns the name of the dissonance model. */
-    String getName() override;
     
     /** Calculates the roughness between two partials. */
     float calculateRoughness (float firstFreq, float firstAmp,

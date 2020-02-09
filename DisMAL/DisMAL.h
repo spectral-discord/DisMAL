@@ -19,3 +19,8 @@
 #include "TuningSystem.h"
 #include "Preprocessor.h"
 #include "FileIO.h"
+
+namespace DisMAL {
+    const OwnedArray<Preprocessor> Preprocessors (std::initializer_list<Preprocessor*> {new HearingRangePreprocessor()});
+    const OwnedArray<DissonanceModel> DissonanceModels (std::initializer_list<DissonanceModel*> {new SetharesModel(), new VassilakisModel()});
+}

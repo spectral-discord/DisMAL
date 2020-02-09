@@ -28,13 +28,23 @@ public:
     /** Processes an array of overtone distributions. */
     virtual void process (OwnedArray<OvertoneDistribution>& distributions) = 0;
     
+    /** Enables dynamic allocation of child objects via std::unique_ptr. */
+    virtual std::unique_ptr<Preprocessor> clone() const = 0;
+
+    
     String getName()
     {
         return name;
     }
     
-private:
-    String name;
+    String getDescription()
+    {
+        return description;
+    }
+    
+protected:
+    String name = "";
+    String description = "";
 };
 
 //==============================================================================
@@ -57,6 +67,9 @@ public:
     
     /** Processes an array of overtone distributions. */
     void process (OwnedArray<OvertoneDistribution>& distributions) override;
+    
+    /** For dynamic allocation of unique pointers to generic preprocessor arrays in DissonanceCalc. */
+    std::unique_ptr<Preprocessor> clone() const override;
     
 private:
     Range<float> hearingRange;

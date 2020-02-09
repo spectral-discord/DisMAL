@@ -17,6 +17,8 @@ HearingRangePreprocessor::HearingRangePreprocessor()
 {
     hearingRange.setStart (20);
     hearingRange.setEnd (20000);
+    name = "Hearing Range";
+    description = "Applies a bandpass filter to remove frequencies that lie outside the human hearing range.";
 }
 
 HearingRangePreprocessor::~HearingRangePreprocessor()
@@ -46,4 +48,9 @@ void HearingRangePreprocessor::process (OwnedArray<OvertoneDistribution>& distri
                 dist->mutePartial (p, true);
         }
     }
+}
+
+std::unique_ptr<Preprocessor> HearingRangePreprocessor::clone() const
+{
+    return std::make_unique<HearingRangePreprocessor> (*this);
 }

@@ -15,17 +15,28 @@
 
 DissonanceCalc::DissonanceCalc()   : model (nullptr)
 {
-    logSteps = false;
     sumPartialDissonances = true;
+    
+    // Dissonance maps
+    logSteps = false;
     varDist = 0;
     xDist = 0;
     yDist = 0;
     dimensionality = Dimensionality::twoDimensional;
+    
+    // Optimization
+    optimMinInterval = 1.001;
+    optimStepSize = 1.0008;
+    optimTolerance = 0.0001;
 }
 
 DissonanceCalc::DissonanceCalc (const DissonanceCalc& otherCalc)   : model (otherCalc.model->cloneModel())
 {
-    //preprocessors.addCopiesOf (otherCalc.preprocessors);
+    for (auto pre : otherCalc.preprocessors)
+    {
+        preprocessors.add (pre->clone());
+    }
+    
     distributions.addCopiesOf (otherCalc.distributions);
     sumPartialDissonances = otherCalc.sumPartialDissonances;
     
@@ -34,6 +45,10 @@ DissonanceCalc::DissonanceCalc (const DissonanceCalc& otherCalc)   : model (othe
     xDist = otherCalc.xDist;
     yDist = otherCalc.yDist;
     logSteps = otherCalc.logSteps;
+    
+    optimMinInterval = otherCalc.optimMinInterval;
+    optimStepSize = otherCalc.optimStepSize;
+    optimTolerance = otherCalc.optimTolerance;
 
     chords = otherCalc.chords;
 }
@@ -55,9 +70,9 @@ String DissonanceCalc::getModelName() const
     return model->getName();
 }
 
-void DissonanceCalc::addPreprocessor (Preprocessor& newPreprocessor)
+void DissonanceCalc::addPreprocessor (Preprocessor* newPreprocessor)
 {
-    preprocessors.add (&newPreprocessor);
+    preprocessors.add (newPreprocessor->clone());
 }
 
 void DissonanceCalc::setPreprocessorIndex (int currentIndex, int newIndex)
@@ -224,9 +239,9 @@ void DissonanceCalc::calculateDissonances()
             tempDistributions[j]->setFundamental (chords[i][j].freq, chords[i][j].amp);
         }
         
-        for (int i = 0; i < preprocessors.size(); i++)
+        for (auto preprocessor : preprocessors)
         {
-            preprocessors[i]->process (tempDistributions);
+            preprocessor->process (tempDistributions);
         }
         
         dissonanceValues.set (i, model->calculateDissonance (tempDistributions, false));
@@ -395,7 +410,7 @@ void DissonanceCalc::calculateDissonanceMap()
         float currentFreq = frequencyRange.getStart();
         
         distributions[varDist]->setFundamentalFreq (currentFreq);
-        
+
         for (int i = 0; i < numSteps; ++i)
         {
             tempDistributions.clear();
@@ -453,73 +468,71 @@ void DissonanceCalc::calculateDissonanceMap()
 // For use with NLopt
 double opt2D (const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
-    DissonanceCalc temp = *static_cast<DissonanceCalc*> (data);
-    
+    DissonanceCalc temp (*static_cast<DissonanceCalc*> (data));
     temp.getDistributionReference (temp.get2dVariableDistributionIndex())->setFundamentalFreq (x[0]);
-    
+
     return temp.calculateDissonance();
 }
 
 void DissonanceCalc::optimize2D (bool minimize, float lowerBound, float upperBound)
 {
-    nlopt::vfunc o = &opt2D;
-    nlopt::opt optim (nlopt::LN_COBYLA, 1);
+    nlopt::opt optimizer (nlopt::LN_COBYLA, 1);
+    nlopt::vfunc optimizationFunc = &opt2D;
     
     Array<float>& optimizedValues = minimize ? minima : maxima;
-    Array<float> dissValues;
+    optimizedValues.clear();
     
+    DissonanceCalc calc (*this);
+        
     if (minimize)
-    {
-        minima.clear();
-        optim.set_min_objective (o, this);
-    }
+        optimizer.set_min_objective (optimizationFunc, &calc);
     else
-    {
-        maxima.clear();
-        optim.set_max_objective (o, this);
-    }
+        optimizer.set_max_objective (optimizationFunc, &calc);
     
-    optim.set_lower_bounds (lowerBound <= 0 ? frequencyRange.getStart() : lowerBound);
-    optim.set_upper_bounds (upperBound <= 0 ? frequencyRange.getEnd() : upperBound);
-    optim.set_xtol_abs (0.0001);
+    Range<float> range = lowerBound >= frequencyRange.getStart() && upperBound <= frequencyRange.getEnd()
+                         ? Range<float> (lowerBound, upperBound)
+                         : frequencyRange;
 
-    std::vector<double> x (1, 0);
+    // Set bounds slightly out of the frequency range to prevent the range bounds from being falsely positives
+    optimizer.set_lower_bounds (range.getStart() * 0.99);
+    optimizer.set_upper_bounds (range.getEnd() * 1.01);
+    optimizer.set_xtol_abs (optimTolerance);
+
+    std::vector<double> x (1, range.getStart());
     double dissonanceValue = 0;
+    double lastDissValue = 0;
     Range<float> tooClose;
-    int index;
     
     for (float thisX = frequencyRange.getStart();
          thisX < frequencyRange.getEnd();
-         thisX *= 1.0008)
+         thisX *= optimStepSize)
     {
         x[0] = thisX;
-        optim.optimize (x, dissonanceValue);
+        optimizer.optimize (x, dissonanceValue);
         
-        if (! optimizedValues.contains (x[0]))
+        if (! optimizedValues.contains (x[0]) && range.contains (x[0]))
         {
-            tooClose.setStart (x[0] / 1.001);
-            tooClose.setEnd (x[0] * 1.001);
-            
-            optimizedValues.addUsingDefaultSort (x[0]);
-            index = optimizedValues.indexOf (x[0]);
-            dissValues.insert (index, dissonanceValue);
-
-            for (int i = 0; i < optimizedValues.size(); ++i)
+            if (! tooClose.isEmpty() && tooClose.contains (x[0]))
             {
-                if (i != index
-                    && tooClose.contains (optimizedValues[i]))
+                if ((dissonanceValue < lastDissValue && minimize)
+                    || (dissonanceValue > lastDissValue && ! minimize))
                 {
-                    if (dissValues[index] < dissValues[i])
-                    {
-                        optimizedValues.remove (i);
-                        dissValues.remove (i);
-                    }
-                    else
-                    {
-                        optimizedValues.remove (index);
-                        dissValues.remove (index);
-                    }
+                    optimizedValues.removeLast();
+                    
+                    optimizedValues.add (x[0]);
+                    lastDissValue = dissonanceValue;
+                    
+                    tooClose.setStart (optimizedValues.getLast());
+                    tooClose.setEnd (optimizedValues.getLast() * optimMinInterval);
                 }
+            }
+            else
+            {
+                optimizedValues.add (x[0]);
+                lastDissValue = dissonanceValue;
+
+                tooClose.setStart (optimizedValues.getLast());
+                tooClose.setEnd (optimizedValues.getLast() * optimMinInterval);
             }
         }
     }

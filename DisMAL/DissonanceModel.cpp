@@ -17,7 +17,7 @@
 
 
 float SpectralInterferenceModel::calculateDissonance (const OwnedArray<OvertoneDistribution>& distributions,
-                                     bool sumPartialDissonances)
+                                                      bool sumPartialDissonances)
 {
     float dissonance = 0;
     float tempDiss = 0;
@@ -141,15 +141,11 @@ SetharesModel::SetharesModel() :    maxDiss (0.24),
                                     plCurveRate1 (-3.51), plCurveRate2 (-5.75),
                                     plcFit1 (5), plcFit2 (-5)
 {
+    name = "Sethares";
 }
 
 SetharesModel::~SetharesModel()
 {
-}
-
-String SetharesModel::getName()
-{
-    return "Sethares";
 }
 
 //==============================================================================
@@ -180,15 +176,11 @@ VassilakisModel::VassilakisModel() :   maxDiss (0.24),
                                        plCurveRate1 (-3.51), plCurveRate2 (-5.75),
                                        plcFit1 (5), plcFit2 (-5)
 {
+    name = "Vassilakis";
 }
 
 VassilakisModel::~VassilakisModel()
 {
-}
-
-String VassilakisModel::getName()
-{
-    return "Vassilakis";
 }
 
 //==============================================================================
